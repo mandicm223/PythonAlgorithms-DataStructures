@@ -366,56 +366,27 @@ As a final step, let's compile all the functions we've written so far as methods
 Encapsulation of data and functionality within the same class is a good programming practice.
 '''
 
-class TreeNode:
-    def __init__(self, key, left=None , right=None):
-        self.key = key
-        self.left = left
-        self.right = right
+class TreeNode():
+    def __init__(self, key):
+        self.key, self.left, self.right = key, None, None
     
     def height(self):
         if self is None:
             return 0
-        return 1 + max(TreeNode.height(self.right) , TreeNode.height(self.right))
-
+        return 1 + max(TreeNode.height(self.left), TreeNode.height(self.right))
+    
     def size(self):
         if self is None:
             return 0
-        return 1 + TreeNode.size(self.left) , TreeNode.size(self.right)
-    
-    def inorder(self):
-        if self is None:
-            return []
-        return (TreeNode.inorder(self.left) , [self.key] , TreeNode.inorder(self.right))
+        return 1 + TreeNode.size(self.left) + TreeNode.size(self.right)
 
-    def preored(self):
-        if self is None:
+    def traverse_in_order(self):
+        if self is None: 
             return []
-        return ( [self.key] , TreeNode.preored(self.left) , TreeNode.preored(self.right))
-
-    def postorder(self):
-        if self is None:
-            return []
-        return (TreeNode.postorder(self.left) ,TreeNode.postorder(self.right) ,[self.key] )
+        return (TreeNode.traverse_in_order(self.left) + 
+                [self.key] + 
+                TreeNode.traverse_in_order(self.right))
     
-    @staticmethod
-    def parse_tuple(self , data):
-        if data is None:
-            node = None
-        elif isinstance(data , tuple) and len(data) == 3:
-            node = TreeNode(data[1])
-            node.left = self.parse_tuple(data[0])
-            node.right = self.parse_tuple(data[2])
-        else:
-            node = TreeNode(data)
-        return node
-    
-    def to_tuple(self):
-        if self is None:
-            return None
-        if self.left is None and self.right is None:
-            return self.key
-        return TreeNode.to_tuple(self.left),  self.key, TreeNode.to_tuple(self.right)
-
     def display_keys(self, space='\t', level=0):
         # If the node is empty
         if self is None:
@@ -428,7 +399,246 @@ class TreeNode:
             return
 
         # If the node has children
-        self.display_keys(self.right, space, level+1)
+        TreeNode.display_keys(self.right, space, level+1)
         print(space*level + str(self.key))
-        self.display_keys(self.left,space, level+1)
+        TreeNode.display_keys(self.left,space, level+1)    
+    
+    def to_tuple(self):
+        if self is None:
+            return None
+        if self.left is None and self.right is None:
+            return self.key
+        return TreeNode.to_tuple(self.left),  self.key, TreeNode.to_tuple(self.right)
+    
+    def __str__(self):
+        return "BinaryTree <{}>".format(self.to_tuple())
+    
+    def __repr__(self):
+        return "BinaryTree <{}>".format(self.to_tuple())
+    
+    @staticmethod    
+    def parse_tuple(data):
+        if data is None:
+            node = None
+        elif isinstance(data, tuple) and len(data) == 3:
+            node = TreeNode(data[1])
+            node.left = TreeNode.parse_tuple(data[0])
+            node.right = TreeNode.parse_tuple(data[2])
+        else:
+            node = TreeNode(data)
+        return node
 
+tree_tupple = ((1,3,None) , 2 , ((None, 3, 4) , 5 , (6,7,8))) 
+
+tree = TreeNode.parse_tuple(tree_tupple)
+tree.display_keys(' ')
+print('---------------------------')
+print(tree.size())
+print(tree.height())
+print(tree.traverse_in_order())
+
+
+'''
+BINARYYY SEARCHHH TREEESSSS
+
+QUESTION 8: Write a function to check if a binary tree is a binary search tree (BST).
+
+QUESTION 9: Write a function to find the maximum key in a binary tree.
+
+QUESTION 10: Write a function to find the minimum key in a binary tree.
+'''
+
+def remove_none(nums):
+    return [ x for x in nums if x is not None]
+
+def is_bst(node):
+    if node is None:
+        return True, None, None
+
+    is_bst_l , min_l , max_l = is_bst(node.left)
+    is_bst_r , min_r , max_r = is_bst(node.right)
+
+    is_bst_node = ( is_bst_l and is_bst_r and 
+                (max_l is None or max_l < node.key) and 
+                min_r is None or min_r > node.key) 
+    
+    min_key = min(remove_none([min_l , node.key , min_r]))
+    max_key = max(remove_none([max_l , node.key , max_r]))
+
+    return is_bst_node, min_key , max_key
+
+tree_1 = TreeNode.parse_tuple((('aakash', 'biraj', 'hemanth')  , 'jadhesh', ('siddhant', 'sonaksh', 'vishal')))
+print(is_bst(tree_1))
+
+
+'''
+Storing Key-Value Pairs using BSTs
+Recall that we need to store user objects with each key in our BST. 
+Let's define new class BSTNode to represent the nodes of of our tree. 
+Apart from having properties key, left and right, we'll also store a value and pointer to the parent node (for easier upward traversal).
+'''
+
+class BSTNode():
+    def __init__(self, key, value=None):
+        self.key = key
+        self.value = value
+        self.parent = None
+        self.left = None
+        self.right = None
+
+'''
+bst_tree = BSTNode(jadhesh.username , jadhesh)
+
+bst_tree.left = BSTNode(biraj.username , biraj)
+
+bst_tree.left.parent = bst_tree
+
+
+bst_tree.right = BSTNode(sonaksh.username , sonaksh)
+bst_tree.right.parent = bst_tree
+'''
+
+'''
+Insertion into BST
+QUESTION 11: Write a function to insert a new node into a BST.
+
+We use the BST-property to perform insertion efficiently:
+
+Starting from the root node, we compare the key to be inserted with the current node's key
+If the key is smaller,
+we recursively insert it in the left subtree (if it exists) or attach it as as the left child if no left subtree exists.
+If the key is larger, 
+we recursively insert it in the right subtree (if it exists) or attach it as as the right child if no right subtree exists.
+'''
+
+def insert(node, key, value):
+    if node is None:
+        node = BSTNode(key , value)
+    elif key < node.key:
+        node.left = insert(node.left , key , value)
+        node.left.parent = node
+    elif key > node.key:
+        node.right = insert(node.right , key , value)
+        node.right.parent = node
+    return node
+
+tree_insert = insert(None, jadhesh.username, jadhesh)
+insert(tree_insert, biraj.username, biraj)
+insert(tree_insert, sonaksh.username, sonaksh)
+insert(tree_insert, aakash.username, aakash)
+insert(tree_insert, hemanth.username, hemanth)
+insert(tree_insert, siddhant.username, siddhant)
+insert(tree_insert, vishal.username, siddhant)
+
+# Use display_keys function to preview above code
+
+
+'''
+Finding a Node in BST
+QUESTION 11: Find the value associated with a given key in a BST.
+
+We can follow a recursive strategy similar to insertion to find the node with a given key within a BST
+'''
+
+def find(node , key):
+    if node is None:
+        return None
+    elif key == node.key:
+        return node
+    elif key < node.key:
+        return find(node.left , key)
+    else:
+        return find(node.right , key) 
+
+node = find(tree_insert , 'hemanth')
+print(node.key , node.value)
+
+
+
+'''
+Updating a value in a BST
+QUESTION 12: Write a function to update the value associated with a given key within a BST
+'''
+
+def update(node , key , value):
+    target = find(node  , key)
+    if target is not None:
+        target.value = value
+
+update(tree_insert , 'hemanth' , User(username='hemanth', name='HemanthJ', email='hemanthJ@example.com'))
+node1 = find(tree_insert , 'hemanth')
+print(node1.key , node1.value)
+
+
+'''
+List the nodes
+QUESTION 13: Write a function to retrieve all the key-values pairs stored in a BST in the sorted order of keys.
+'''
+
+def list_all(node):
+    if node is None:
+        return []
+    return list_all(node.left) + [(node.key , node.value)] + list_all(node.right)
+
+print(list_all(tree_insert))
+
+
+'''
+Balanced Binary Trees
+QUESTION 14: Write a function to determine if a binary tree is balanced.
+
+Here's a recursive strategy:
+
+Ensure that the left subtree is balanced.
+Ensure that the right subtree is balanced.
+Ensure that the difference between heights of left subtree and right subtree is not more than 1.
+'''
+
+def isBalanced(node):
+    if node is None:
+        return True, 0
+    balanced_l , height_l = isBalanced(node.left)
+    balanced_r , height_r = isBalanced(node.right)
+
+    
+    balanced = balanced_l and balanced_r and abs(balanced_l - balanced_r) <= 1
+    height = 1 + max(height_l , height_r)
+    
+    return balanced , height
+print(isBalanced(tree_insert))
+
+
+
+'''
+QUESTION 15: Write a function to create a balanced BST from a sorted list/array of key-value pairs.
+'''
+def make_balanced_bst(data, lo=0 , hi=None , parent=None ):
+    if hi is None:
+        hi = len(data) - 1
+    if lo > hi:
+        return None
+    mid = ( lo + hi ) // 2
+    key , value = data[mid]
+
+    root = BSTNode( key , value)
+    root.parent = parent
+    root.left = make_balanced_bst(data , lo , mid - 1 , root)
+    root.right = make_balanced_bst(data , mid + 1 , hi , root)
+
+    return root
+
+def remove_none(nums):
+    return [x for x in nums if x is not None]
+
+def is_bst(node):
+    if node is None:
+        return True, None , None
+    
+    bst_l , min_l , max_l = is_bst(node.left)
+    bst_r , min_r , max_r = is_bst(node.right)
+
+    is_bst_node = (bst_l and bst_r and 
+                (max_l is None or max_l < node.key) and
+                min_r is None or min_r > node.key)
+    
+     
