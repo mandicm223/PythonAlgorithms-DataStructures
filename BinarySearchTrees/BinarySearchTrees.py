@@ -627,18 +627,88 @@ def make_balanced_bst(data, lo=0 , hi=None , parent=None ):
 
     return root
 
-def remove_none(nums):
-    return [x for x in nums if x is not None]
 
-def is_bst(node):
-    if node is None:
-        return True, None , None
-    
-    bst_l , min_l , max_l = is_bst(node.left)
-    bst_r , min_r , max_r = is_bst(node.right)
+'''
+Balancing an Unbalanced BST
+QUESTION 16: Write a function to balance an unbalanced binary search tree.
+'''
 
-    is_bst_node = (bst_l and bst_r and 
-                (max_l is None or max_l < node.key) and
-                min_r is None or min_r > node.key)
+def balance_bst(node):
+    return make_balanced_bst(list_all(node))
+
+example_tree = None
+for user in users:
+    example_tree = insert(example_tree , user.username , user)
+
+example_tree2  = balance_bst(example_tree)
+
+
+'''
+Complexity of the various operations in a balanced BST:
+
+Insert - O(log N) + O(N) = O(N)
+Find - O(log N)
+Update - O(log N)
+List all - O(N)
+'''
+
+
+'''
+A Python-Friendly Treemap
+We are now ready to return to our original problem statement.
+
+QUESTION 1: As a senior backend engineer at Jovian, 
+you are tasked with developing a fast in-memory data structure to manage profile information 
+(username, name and email) for 100 million users. It should allow the following operations to be performed efficiently:
+
+Insert the profile information for a new user.
+Find the profile information of a user, given their username
+Update the profile information of a user, given their usrname
+List all the users of the platform, sorted by username
+You can assume that usernames are unique.
+
+We can create a generic class TreeMap which supports all the operations specified in the original problem statement
+in a python-friendly manner.
+'''
+
+class TreeeMap():
+    def __init__(self):
+        self.root = None
+
+    def __setitem__(self , key , value):
+        node = find(self.root , key)
+        if not node:
+            self.root = insert(self.root , key , value)
+            self.root = balance_bst(self.root)
+        else:
+            update(self.root , key , value)
+
+    def __getitem__(self , key):
+        node = find(self.root , key)
+        return node.value if node else None
+
+    def __iter__(self):
+        return ( x for x in list_all(self.root)) 
+
+    def __len__(self):
+        return TreeNode.size(self.root)
+
+    def __display__(self):
+        return TreeNode.display_keys(self.root)
+print('################################################')
+tree_map = TreeeMap()
+
+tree_map['aakash'] = aakash
+tree_map['jadhesh'] = jadhesh
+tree_map['sonaksh'] = sonaksh
+
+print(tree_map['aakash'])
+print(len(tree_map))
+
+for key, value in tree_map:
+    print( key , value)
+
+
+
     
      
