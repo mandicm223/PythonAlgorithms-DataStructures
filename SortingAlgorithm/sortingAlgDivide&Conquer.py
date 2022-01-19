@@ -1,3 +1,4 @@
+from math import e
 from jovian.pythondsa import evaluate_test_cases
 
 '''
@@ -199,3 +200,142 @@ def insertion_sort(nums):
     return nums
 
 
+
+'''
+6. Apply the right technique to overcome the inefficiency. Repeat Steps 3 to 6.
+To performing sorting more efficiently, we'll apply a strategy called Divide and Conquer, which has the following general steps:
+
+Divide the inputs into two roughly equal parts.
+Recursively solve the problem individually for each of the two parts.
+Combine the results to solve the problem for the original inputs.
+Include terminating conditions for small or indivisible inputs.
+'''
+
+'''
+This is example of how should you implement merging of two sorted lists
+'''
+
+def merge_sort_sorted_arrays(a , b):
+    sorted_array = []
+    i =0
+    j = 0
+    arr = []
+    while i < len(a) and j < len(b):
+        if a[i] <= b[j]:
+            arr.append(a[i])
+            i += 1
+        else:
+            arr.append(b[j])
+            j += 1
+    tails_a = a[i:]
+    tails_b = b[j:]
+    return arr + tails_a + tails_b
+print(merge_sort_sorted_arrays([1,2,4,5,6] , [3 , 7 , 9,10]))
+
+
+def merge_sort(nums):
+    if len(nums) <= 1:
+        return nums
+    
+    mid = len(nums) // 2
+    left = nums[:mid]
+    right = nums[mid:]
+
+    left_sorted , right_sorted = merge_sort(left) , merge_sort(right)
+
+    sorted_nums = merge_sort_sorted_arrays(left_sorted , right_sorted)
+    return sorted_nums
+
+
+#evaluate_test_cases(merge_sort , tests)
+
+
+'''
+Time complexity
+
+Counting from the top and starting from 0, 
+the  𝑘𝑡ℎ  level of the above tree involves  2𝑘  invocations of merge with sublists of size roughly  𝑛/2𝑘 , 
+where  𝑛  is the size of the original input list. Therefore the total number of comparisons at each level of the tree is  2𝑘∗𝑛/2𝑘=𝑛 .
+
+Thus, if the height of the tree is  ℎ , the total number of comparisons is  𝑛∗ℎ . Since there are  𝑛  sublists of size 1 at the lowest level,
+it follows that  2(ℎ−1)=𝑛  i.e.  ℎ=log𝑛+1 . Thus the time complexity of the merge sort algorithms is  𝑂(𝑛log𝑛) .
+
+As we already saw, it took just 50 ms to sort an array of 10,000 elements. 
+Even an array of 1 million elements will take only a few seconds to be sorted.
+
+
+Space Complexity
+
+since the original sublists can be discarded after the merge operation, the additional space can be freed or reused for future merge calls. 
+Thus, merge sort requires  𝑂(𝑛)  additional space i.e. the space complexity is  𝑂(𝑛) .
+'''
+
+'''
+Quicksort
+To overcome the space inefficiencies of merge sort, we'll study another divide-and-conquer based sorting algorithm called quicksort, 
+which works as follows:
+
+-If the list is empty or has just one element, return it. It's already sorted.
+
+-Pick a random element from the list. This element is called a pivot.
+
+-Reorder the list so that all elements with values less than or equal to the pivot come before the pivot, 
+while all elements with values greater than the pivot come after it. This operation is called partitioning.
+
+-The pivot element divides the array into two parts which can be sorted independently by making a recursive call to quicksort.
+'''
+
+def quick_sort(nums , start=0 , end=None):
+    if end is None:
+        nums = list(nums)
+        end = len(nums) - 1
+
+    if start < end:
+        pivot = partition(nums , start , end)
+        quick_sort(nums , start , pivot - 1)
+        quick_sort(nums , pivot + 1 , end)
+    return nums
+
+def partition(nums , start , end=None):
+    if end is None:
+        end = len(nums) - 1
+    
+    l , r = start , end - 1
+
+    while r > l:
+        if nums[l] <= nums[end]:
+            l += 1
+
+        elif nums[r] > nums[end]:
+            r -= 1
+
+        else:
+            nums[l] , nums[r] = nums[r] , nums[l]
+
+    if nums[l] > nums[end]:
+        nums[l] , nums[end] = nums[end] , nums[l]
+
+        return l
+    else:
+        return end
+
+evaluate_test_cases(quick_sort , tests)
+
+
+'''
+Time Complexity of Quicksort
+
+If we partition the list into two nearly equal parts,then the complexity analysis is similar to that of merge sort and quicksort has the complexity  𝑂(𝑛log𝑛) . 
+This is called the average-case complexity.
+
+
+Worst case partitioning:
+
+In this case, the partition is called n times with lists of sizes n, n-1... 
+so that total comparisions are  𝑛+(𝑛−1)+(𝑛−2)+...+2+1=𝑛∗(𝑛−1)/2 . So the worst-case complexity of quicksort is  𝑂(𝑛2) .
+
+
+Space Complexity of Quicksort
+
+if we want to include space that we need initiali to store input that its O(N) but additional space is O(1)
+'''
