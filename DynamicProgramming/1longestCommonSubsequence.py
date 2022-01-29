@@ -1,5 +1,3 @@
-from re import A
-from tkinter import N
 from jovian.pythondsa import evaluate_test_cases
 '''
 Longest Common Subsequence
@@ -119,3 +117,37 @@ def lcs_recursive(seq1 , seq2 , idx1=0 , idx2=0):
 
 #evaluate_test_cases(lcs_recursive , lcq_tests)
 
+
+def lcs_memo(seq1 , seq2):
+    memo = {}
+    def recursive(idx1, idx2):
+        key = (idx1 , idx2)
+
+        if key in memo:
+            return memo[key]
+        elif idx1 == len(seq1) or idx2 == len(seq2):
+            memo[key] = 0
+        elif seq1[idx1] == seq2[idx2]:
+            memo[key] = 1 + recursive(idx1+1 , idx2 + 1)
+        else:
+            memo[key] = max(recursive(idx1 + 1 , idx2) , recursive(idx1 , idx2 + 1))
+        return memo[key]
+    return recursive(0 , 0) 
+
+#evaluate_test_cases(lcs_memo , lcq_tests)
+
+
+def lcs_dp(seq1 , seq2):
+    n1 , n2 = len(seq1) , len(seq2)
+    table = [[0 for x in range(n2 + 1)] for x in range(n1 + 1)]
+
+    for i in range(n1):
+        for j in range(n2):
+            if seq1[i] == seq2[j]:
+                table[i+1][j+1] = 1 + table[i][j]
+            else:
+                table[i +1][j + 1] = max(table[i+1][j] , table[i][j+1])
+    return table[-1][-1]
+
+
+evaluate_test_cases(lcs_dp , lcq_tests)
