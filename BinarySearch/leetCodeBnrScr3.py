@@ -1,18 +1,25 @@
-def binary_search(nums,target):
-    lo = 0
-    hi = len(nums) - 1
-    while lo < hi:
-        curSum = nums[lo] + nums[hi]
+'''
+Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
 
-        if curSum == target:
-            return lo + 1, hi + 1
-        elif curSum > target:
-            hi -= 1
-        else:
-            lo += 1
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
 
+You can return the answer in any order.
+'''
 
-
-nums = [2,7,11,15]
-target = 9
-print(binary_search(nums,target))
+class Solution(object):
+    def twoSum(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        prevMap = {}
+        
+        for i , n in enumerate(nums):
+            diff = target - n
+            if diff in prevMap:
+                return [prevMap[diff] , i]
+            else:
+                prevMap[n] = i
+        return
+        
